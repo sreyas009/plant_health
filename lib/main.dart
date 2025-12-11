@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/image_provider.dart';
 import 'screens/camera_screen.dart';
 import 'screens/history_screen.dart';
+import 'screens/instructions_screen.dart';
 
 void main() {
   runApp(
@@ -20,7 +21,11 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int _index = 0;
 
-  final List<Widget> _screens = [const CameraScreen(), const HistoryScreen()];
+  final List<Widget> _screens = [
+    const CameraScreen(),
+    const HistoryScreen(),
+    const InstructionsScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +99,10 @@ class _MyAppState extends State<MyApp> {
             BottomNavigationBarItem(
               icon: Icon(Icons.history),
               label: "History",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.info_outline),
+              label: "Instructions",
             ),
           ],
         ),
