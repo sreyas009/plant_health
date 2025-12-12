@@ -144,8 +144,8 @@ class _SplashView extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            theme.colorScheme.primary.withOpacity(0.12),
-            theme.colorScheme.primaryContainer.withOpacity(0.05),
+            theme.colorScheme.primary.withValues(alpha: 0.12),
+            theme.colorScheme.primaryContainer.withValues(alpha: 0.05),
           ],
         ),
       ),
