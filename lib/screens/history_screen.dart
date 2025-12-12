@@ -65,11 +65,45 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _showSnack("Local image ${img.label} deleted.", isError: false);
   }
 
+  String _formatDateTime(DateTime date) {
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    final day = date.day;
+    final suffix = (day % 100 >= 11 && day % 100 <= 13)
+        ? 'th'
+        : (day % 10 == 1
+              ? 'st'
+              : day % 10 == 2
+              ? 'nd'
+              : day % 10 == 3
+              ? 'rd'
+              : 'th');
+    final month = monthNames[date.month - 1];
+    final hour = date.hour;
+    final minute = date.minute.toString().padLeft(2, '0');
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final hour12 = hour % 12 == 0 ? 12 : hour % 12;
+    return '$day$suffix $month ${date.year} • $hour12:$minute $period';
+  }
+
   Widget _buildRemoteCard(PlantHealthRecord record) {
     final theme = Theme.of(context);
     final brixLabel = record.brix.toStringAsFixed(1);
     final ndviLabel = record.ndvi.toStringAsFixed(2);
-    final parsedDate = record.dateTime.toLocal().toString().split('.').first;
+    final parsedDate = _formatDateTime(record.dateTime.toLocal());
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),

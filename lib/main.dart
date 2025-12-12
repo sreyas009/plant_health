@@ -4,6 +4,7 @@ import 'providers/image_provider.dart';
 import 'screens/camera_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/instructions_screen.dart';
+import 'widgets/brand_mark.dart';
 
 void main() {
   runApp(
@@ -20,6 +21,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _index = 0;
+  bool _showSplash = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1600), () {
+      if (mounted) setState(() => _showSplash = false);
+    });
+  }
 
   final List<Widget> _screens = [
     const CameraScreen(),
@@ -31,6 +41,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Plant Health Index',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -83,30 +94,82 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Camera Label App"),
-          centerTitle: true,
+      home: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              leading: const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: BrandMark(size: 36),
+              ),
+              title: const Text("FarmFuture PHI"),
+              centerTitle: true,
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: _index,
+              onTap: (i) => setState(() => _index = i),
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.camera_alt),
+                  label: "Camera",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.history),
+                  label: "History",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.info_outline),
+                  label: "Instructions",
+                ),
+              ],
+            ),
+            body: _screens[_index],
+          ),
+          if (_showSplash) const Positioned.fill(child: _SplashView()),
+        ],
+      ),
+    );
+  }
+}
+
+class _SplashView extends StatelessWidget {
+  const _SplashView();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            theme.colorScheme.primary.withOpacity(0.12),
+            theme.colorScheme.primaryContainer.withOpacity(0.05),
+          ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _index,
-          onTap: (i) => setState(() => _index = i),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.camera_alt),
-              label: "Camera",
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const BrandMark(size: 120),
+            const SizedBox(height: 16),
+            Text(
+              'FarmFuture PHI',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              label: "History",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.info_outline),
-              label: "Instructions",
+            const SizedBox(height: 4),
+            Text(
+              'Plant Health Index',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.secondary,
+              ),
             ),
           ],
         ),
-        body: _screens[_index],
       ),
     );
   }
