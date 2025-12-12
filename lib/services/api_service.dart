@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import '../models/plant_health_record.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://api-dev.agricentral.io/api/';
+  static const String baseUrl = 'https://api.agricentral.io/api/';
   static const String _imageBase = 'https://blobstorage.farmfuture.io/';
 
   static String _appendImagePath(String rawPath) {
