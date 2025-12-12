@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/image_provider.dart';
 import '../models/saved_image.dart';
+import '../services/api_service.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -68,16 +69,16 @@ class _CameraScreenState extends State<CameraScreen> {
     await _image!.copy(savedPath);
 
     final store = Provider.of<ImageStore>(context, listen: false);
-
-    await store.addImage(
-      SavedImage(
-        path: savedPath,
-        label: store.nextLabel.toString(),
-        text: description,
-        brix: brix,
-        ndvi: ndvi,
-      ),
+    final labelValue = store.nextLabel;
+    final savedImage = SavedImage(
+      path: savedPath,
+      label: labelValue.toString(),
+      text: description,
+      brix: brix,
+      ndvi: ndvi,
     );
+
+    await store.addImage(savedImage);
 
     setState(() {
       _image = null;
@@ -86,7 +87,20 @@ class _CameraScreenState extends State<CameraScreen> {
       _ndviCtrl.clear();
     });
 
-    _showSnack("Image saved successfully!", isError: false);
+    _showSnack("Image saved locally.", isError: false);
+
+    try {
+      await ApiService.addPlantHealthData(
+        label: labelValue,
+        ndvi: ndvi,
+        brix: brix,
+        imagePath: savedPath,
+      );
+      await store.removeImage(savedImage);
+      _showSnack("Synced to cloud successfully.", isError: false);
+    } catch (_) {
+      _showSnack("Saved locally but failed to sync with the server.");
+    }
   }
 
   void _showSnack(String message, {bool isError = true}) {
