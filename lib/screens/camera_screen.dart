@@ -87,7 +87,7 @@ class _CameraScreenState extends State<CameraScreen> {
       _ndviCtrl.clear();
     });
 
-    _showSnack("Image saved locally.", isError: false);
+    _showSnack("Saved locally. Syncing to cloud...", isError: false);
 
     try {
       await ApiService.addPlantHealthData(
@@ -97,7 +97,10 @@ class _CameraScreenState extends State<CameraScreen> {
         imagePath: savedPath,
       );
       await store.removeImage(savedImage);
-      _showSnack("Synced to cloud successfully.", isError: false);
+      _showSnack(
+        "Saved locally and synced to cloud successfully.",
+        isError: false,
+      );
     } catch (_) {
       _showSnack("Saved locally but failed to sync with the server.");
     }

@@ -43,7 +43,22 @@ class ImageStore extends ChangeNotifier {
     }
   }
 
-  int get nextLabel => _lastLabel + 1;
+  int get nextLabel {
+    final timestampLabel = _timestampLabel();
+    return _lastLabel >= timestampLabel ? _lastLabel + 1 : timestampLabel;
+  }
+
+  int _timestampLabel() {
+    final now = DateTime.now().toUtc();
+    final year = now.year.toString().padLeft(4, '0');
+    final month = now.month.toString().padLeft(2, '0');
+    final day = now.day.toString().padLeft(2, '0');
+    final hour = now.hour.toString().padLeft(2, '0');
+    final minute = now.minute.toString().padLeft(2, '0');
+    final second = now.second.toString().padLeft(2, '0');
+    final millisecond = now.millisecond.toString().padLeft(3, '0');
+    return int.parse('$year$month$day$hour$minute$second$millisecond');
+  }
 
   Future<File> get _storageFile async {
     final dir = await getApplicationDocumentsDirectory();
