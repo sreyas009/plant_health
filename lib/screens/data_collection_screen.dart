@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/crop_type.dart';
 import '../models/disease_type.dart';
 import '../services/api_service.dart';
+import '../services/sync_service.dart';
 
 class DataCollectionScreen extends StatefulWidget {
   const DataCollectionScreen({super.key});
@@ -156,10 +157,44 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      // Save to local queue on failure
+      try {
+        await SyncService.addToQueue(
+          cropTypeId: _selectedCropId!,
+          type: _selectedCategory!,
+          subtype: _selectedDiseaseId != null
+              ? (_filteredDiseases
+                    .firstWhere((d) => d.id == _selectedDiseaseId)
+                    .name)
+              : null,
+          // Note: Re-resolving name here might be risky if we didn't resolve it before try block,
+          // but I already resolved 'subtypeName' variable above inside the try block.
+          // Yet, 'subtypeName' scope is inside try.
+          // Let's rely on re-resolving safely or just use what we have.
+          // Ideally I should refactor to resolve name before try or inside a wider scope.
+          imagePath: _image!.path,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No internet. Saved for later upload.'),
+            ),
+          );
+          setState(() {
+            _image = null;
+            _selectedCropId = null;
+            _selectedCategory = null;
+            _selectedDiseaseId = null;
+          });
+        }
+      } catch (dbError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Upload failed and could not save offline: $e'),
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

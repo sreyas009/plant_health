@@ -5,12 +5,18 @@ import 'screens/camera_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/instructions_screen.dart';
 import 'screens/data_collection_screen.dart';
+import 'screens/offline_queue_screen.dart';
 import 'widgets/brand_mark.dart';
+
+import 'services/sync_service.dart';
 
 void main() {
   runApp(
     ChangeNotifierProvider(create: (_) => ImageStore(), child: const MyApp()),
   );
+
+  // Start offline sync process
+  SyncService.processQueue();
 }
 
 class MyApp extends StatefulWidget {
@@ -37,6 +43,7 @@ class _MyAppState extends State<MyApp> {
     const HistoryScreen(),
     const InstructionsScreen(),
     const DataCollectionScreen(),
+    const OfflineQueueScreen(),
   ];
 
   @override
@@ -126,6 +133,10 @@ class _MyAppState extends State<MyApp> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.backup),
                   label: "Data Collection",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.wifi_off),
+                  label: "Offline",
                 ),
               ],
             ),

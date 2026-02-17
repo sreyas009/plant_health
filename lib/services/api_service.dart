@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
+import 'database_helper.dart';
 
 import '../models/plant_health_record.dart';
 
@@ -91,64 +92,136 @@ class ApiService {
   static Future<List<CropType>> getCropsData() async {
     final uri = Uri.parse('${farmFutureBaseUrl}StaticData/GetCropsData');
     debugPrint('GET $uri');
-    final response = await http.get(uri);
-    debugPrint('Response(${response.statusCode}): ${response.body}');
 
-    if (response.statusCode != 200) {
-      throw HttpException(
-        'Failed to fetch crops data (${response.statusCode})',
-      );
+    try {
+      final response = await http.get(uri);
+      debugPrint('Response(${response.statusCode}): ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Cache the successful response
+        await DatabaseHelper.instance.cacheResponse(
+          uri.toString(),
+          response.body,
+        );
+
+        final json = jsonDecode(response.body);
+        if (json['succeeded'] == true) {
+          final List<dynamic> data = json['data'];
+          return data.map((e) => CropType.fromJson(e)).toList();
+        } else {
+          throw HttpException('Failed to fetch crops data: ${json['message']}');
+        }
+      }
+    } catch (e) {
+      debugPrint('Network error, trying cache for $uri: $e');
     }
 
-    final json = jsonDecode(response.body);
-    if (json['succeeded'] == true) {
-      final List<dynamic> data = json['data'];
-      return data.map((e) => CropType.fromJson(e)).toList();
-    } else {
-      throw HttpException('Failed to fetch crops data: ${json['message']}');
+    // Fallback to cache
+    final cachedBody = await DatabaseHelper.instance.getCachedResponse(
+      uri.toString(),
+    );
+    if (cachedBody != null) {
+      debugPrint('Loaded crops from cache');
+      final json = jsonDecode(cachedBody);
+      if (json['succeeded'] == true) {
+        final List<dynamic> data = json['data'];
+        return data.map((e) => CropType.fromJson(e)).toList();
+      }
     }
+
+    throw HttpException('Failed to fetch crops data and no cache available');
   }
 
   static Future<List<DiseaseType>> getDiseases() async {
     final uri = Uri.parse('${farmFutureBaseUrl}StaticData/GetDiseases');
     debugPrint('GET $uri');
-    final response = await http.get(uri);
-    debugPrint('Response(${response.statusCode}): ${response.body}');
 
-    if (response.statusCode != 200) {
-      throw HttpException(
-        'Failed to fetch diseases data (${response.statusCode})',
-      );
+    try {
+      final response = await http.get(uri);
+      debugPrint('Response(${response.statusCode}): ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Cache successful response
+        await DatabaseHelper.instance.cacheResponse(
+          uri.toString(),
+          response.body,
+        );
+
+        final json = jsonDecode(response.body);
+        if (json['succeeded'] == true) {
+          final List<dynamic> data = json['data'];
+          return data.map((e) => DiseaseType.fromJson(e)).toList();
+        } else {
+          throw HttpException(
+            'Failed to fetch diseases data: ${json['message']}',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Network error, trying cache for $uri: $e');
     }
 
-    final json = jsonDecode(response.body);
-    if (json['succeeded'] == true) {
-      final List<dynamic> data = json['data'];
-      return data.map((e) => DiseaseType.fromJson(e)).toList();
-    } else {
-      throw HttpException('Failed to fetch diseases data: ${json['message']}');
+    // Fallback to cache
+    final cachedBody = await DatabaseHelper.instance.getCachedResponse(
+      uri.toString(),
+    );
+    if (cachedBody != null) {
+      debugPrint('Loaded diseases from cache');
+      final json = jsonDecode(cachedBody);
+      if (json['succeeded'] == true) {
+        final List<dynamic> data = json['data'];
+        return data.map((e) => DiseaseType.fromJson(e)).toList();
+      }
     }
+
+    throw HttpException('Failed to fetch diseases data and no cache available');
   }
 
   static Future<List<DiseaseType>> getNutrients() async {
     final uri = Uri.parse('${farmFutureBaseUrl}StaticData/GetNutrients');
     debugPrint('GET $uri');
-    final response = await http.get(uri);
-    debugPrint('Response(${response.statusCode}): ${response.body}');
 
-    if (response.statusCode != 200) {
-      throw HttpException(
-        'Failed to fetch nutrients data (${response.statusCode})',
-      );
+    try {
+      final response = await http.get(uri);
+      debugPrint('Response(${response.statusCode}): ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Cache successful response
+        await DatabaseHelper.instance.cacheResponse(
+          uri.toString(),
+          response.body,
+        );
+
+        final json = jsonDecode(response.body);
+        if (json['succeeded'] == true) {
+          final List<dynamic> data = json['data'];
+          return data.map((e) => DiseaseType.fromJson(e)).toList();
+        } else {
+          throw HttpException(
+            'Failed to fetch nutrients data: ${json['message']}',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Network error, trying cache for $uri: $e');
     }
 
-    final json = jsonDecode(response.body);
-    if (json['succeeded'] == true) {
-      final List<dynamic> data = json['data'];
-      return data.map((e) => DiseaseType.fromJson(e)).toList();
-    } else {
-      throw HttpException('Failed to fetch nutrients data: ${json['message']}');
+    // Fallback to cache
+    final cachedBody = await DatabaseHelper.instance.getCachedResponse(
+      uri.toString(),
+    );
+    if (cachedBody != null) {
+      debugPrint('Loaded nutrients from cache');
+      final json = jsonDecode(cachedBody);
+      if (json['succeeded'] == true) {
+        final List<dynamic> data = json['data'];
+        return data.map((e) => DiseaseType.fromJson(e)).toList();
+      }
     }
+
+    throw HttpException(
+      'Failed to fetch nutrients data and no cache available',
+    );
   }
 
   static Future<void> uploadDataCollection({
