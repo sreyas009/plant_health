@@ -18,8 +18,8 @@ class DataCollectionWrapperScreen extends StatelessWidget {
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: [
-              Tab(icon: Icon(Icons.edit_note), text: 'New Entry'),
-              Tab(icon: Icon(Icons.wifi_off), text: 'Offline Queue'),
+              Tab(icon: Icon(Icons.edit_note), text: 'Form'),
+              Tab(icon: Icon(Icons.wifi_off), text: 'Queue'),
             ],
           ),
         ),

@@ -107,6 +107,10 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
+      builder: (context, child) => GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: child,
+      ),
       home: Stack(
         children: [
           if (!_isLoggedIn)
@@ -119,7 +123,7 @@ class _MyAppState extends State<MyApp> {
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.spa),
-                    label: "Plant Health",
+                    label: "Brix & NDVI",
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.backup),
@@ -127,7 +131,7 @@ class _MyAppState extends State<MyApp> {
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.info_outline),
-                    label: "Instructions",
+                    label: "Guide",
                   ),
                 ],
               ),

@@ -19,8 +19,8 @@ class PlantHealthScreen extends StatelessWidget {
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: [
-              Tab(icon: Icon(Icons.camera_alt), text: 'Camera'),
-              Tab(icon: Icon(Icons.history), text: 'History'),
+              Tab(icon: Icon(Icons.camera_alt), text: 'Scan'),
+              Tab(icon: Icon(Icons.history), text: 'Logs'),
             ],
           ),
         ),
