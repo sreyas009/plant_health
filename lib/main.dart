@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/image_provider.dart';
-import 'screens/camera_screen.dart';
-import 'screens/history_screen.dart';
 import 'screens/instructions_screen.dart';
-import 'screens/data_collection_screen.dart';
-import 'screens/offline_queue_screen.dart';
+import 'screens/plant_health_screen.dart';
+import 'screens/data_collection_wrapper_screen.dart';
 import 'widgets/brand_mark.dart';
 
 import 'services/sync_service.dart';
@@ -39,11 +37,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   final List<Widget> _screens = [
-    const CameraScreen(),
-    const HistoryScreen(),
+    const PlantHealthScreen(),
+    const DataCollectionWrapperScreen(),
     const InstructionsScreen(),
-    const DataCollectionScreen(),
-    const OfflineQueueScreen(),
   ];
 
   @override
@@ -106,37 +102,21 @@ class _MyAppState extends State<MyApp> {
       home: Stack(
         children: [
           Scaffold(
-            appBar: AppBar(
-              leading: const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: BrandMark(size: 36),
-              ),
-              title: const Text("FarmFuture PHI"),
-              centerTitle: true,
-            ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _index,
               onTap: (i) => setState(() => _index = i),
               items: const [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.camera_alt),
-                  label: "Camera",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.history),
-                  label: "History",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.info_outline),
-                  label: "Instructions",
+                  icon: Icon(Icons.spa),
+                  label: "Plant Health",
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.backup),
                   label: "Data Collection",
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.wifi_off),
-                  label: "Offline",
+                  icon: Icon(Icons.info_outline),
+                  label: "Instructions",
                 ),
               ],
             ),

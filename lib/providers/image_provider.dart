@@ -19,7 +19,11 @@ class ImageStore extends ChangeNotifier {
 
   Future<SavedImage> addImage(SavedImage img) async {
     _images.add(img);
-    _lastLabel = max(_lastLabel, int.tryParse(img.label) ?? _lastLabel);
+    // Parse label and ensure _lastLabel tracks the highest label
+    final labelVal = int.tryParse(img.label) ?? 0;
+    if (labelVal > _lastLabel) {
+      _lastLabel = labelVal;
+    }
     await _save();
     notifyListeners();
     return img;
@@ -44,10 +48,9 @@ class ImageStore extends ChangeNotifier {
   }
 
   int get nextLabel {
-    final timestampLabel = _timestampLabel();
-    return _lastLabel >= timestampLabel ? _lastLabel + 1 : timestampLabel;
+    return _lastLabel + 1;
   }
-
+  /*
   int _timestampLabel() {
     final now = DateTime.now().toUtc();
     final year = now.year.toString().padLeft(4, '0');
@@ -59,6 +62,7 @@ class ImageStore extends ChangeNotifier {
     final millisecond = now.millisecond.toString().padLeft(3, '0');
     return int.parse('$year$month$day$hour$minute$second$millisecond');
   }
+*/
 
   Future<File> get _storageFile async {
     final dir = await getApplicationDocumentsDirectory();

@@ -54,24 +54,19 @@ class _OfflineQueueScreenState extends State<OfflineQueueScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Offline Queue'),
-        actions: [
-          IconButton(
-            icon: _isSyncing
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  )
-                : const Icon(Icons.sync),
-            onPressed: _isSyncing ? null : _triggerSync,
-            tooltip: 'Sync Now',
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: _isSyncing ? null : _triggerSync,
+        tooltip: 'Sync Now',
+        child: _isSyncing
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : const Icon(Icons.sync),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

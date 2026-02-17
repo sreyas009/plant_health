@@ -204,7 +204,6 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Data Collection')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -255,7 +254,7 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
                       labelText: 'Crop Type',
                       border: OutlineInputBorder(),
                     ),
-                    value: _selectedCropId,
+                    initialValue: _selectedCropId,
                     items: _crops.map((crop) {
                       return DropdownMenuItem(
                         value: crop.cropId,
@@ -276,7 +275,7 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
                       labelText: 'Category',
                       border: OutlineInputBorder(),
                     ),
-                    value: _selectedCategory,
+                    initialValue: _selectedCategory,
                     items: _categories.map((category) {
                       return DropdownMenuItem(
                         value: category,
@@ -312,7 +311,7 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
                       labelText: 'Disease/Subtype (Optional)',
                       border: OutlineInputBorder(),
                     ),
-                    value: _selectedDiseaseId,
+                    initialValue: _selectedDiseaseId,
                     items: [
                       const DropdownMenuItem<String>(
                         value: null,
