@@ -4,6 +4,7 @@ import 'providers/image_provider.dart';
 import 'screens/instructions_screen.dart';
 import 'screens/plant_health_screen.dart';
 import 'screens/data_collection_wrapper_screen.dart';
+import 'screens/login_screen.dart';
 import 'widgets/brand_mark.dart';
 
 import 'services/sync_service.dart';
@@ -27,12 +28,19 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int _index = 0;
   bool _showSplash = true;
+  bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 1600), () {
       if (mounted) setState(() => _showSplash = false);
+    });
+  }
+
+  void _onLoginSuccess() {
+    setState(() {
+      _isLoggedIn = true;
     });
   }
 
@@ -101,27 +109,30 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Stack(
         children: [
-          Scaffold(
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: _index,
-              onTap: (i) => setState(() => _index = i),
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.spa),
-                  label: "Plant Health",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.backup),
-                  label: "Data Collection",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.info_outline),
-                  label: "Instructions",
-                ),
-              ],
+          if (!_isLoggedIn)
+            LoginScreen(onLoginSuccess: _onLoginSuccess)
+          else
+            Scaffold(
+              bottomNavigationBar: BottomNavigationBar(
+                currentIndex: _index,
+                onTap: (i) => setState(() => _index = i),
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.spa),
+                    label: "Plant Health",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.backup),
+                    label: "Data Collection",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.info_outline),
+                    label: "Instructions",
+                  ),
+                ],
+              ),
+              body: _screens[_index],
             ),
-            body: _screens[_index],
-          ),
           if (_showSplash) const Positioned.fill(child: _SplashView()),
         ],
       ),
