@@ -7,8 +7,12 @@ import 'package:path/path.dart' as p;
 
 import '../models/plant_health_record.dart';
 
+import '../models/crop_type.dart';
+import '../models/disease_type.dart';
+
 class ApiService {
   static const String baseUrl = 'https://api.agricentral.io/api/';
+  static const String farmFutureBaseUrl = 'https://api.farmfuture.io/api/';
   static const String _imageBase = 'https://blobstorage.farmfuture.io/';
 
   static String _appendImagePath(String rawPath) {
@@ -82,5 +86,101 @@ class ApiService {
       dateTime: record.dateTime,
       imageUrl: _appendImagePath(record.imageUrl),
     );
+  }
+
+  static Future<List<CropType>> getCropsData() async {
+    final uri = Uri.parse('${farmFutureBaseUrl}StaticData/GetCropsData');
+    debugPrint('GET $uri');
+    final response = await http.get(uri);
+    debugPrint('Response(${response.statusCode}): ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw HttpException(
+        'Failed to fetch crops data (${response.statusCode})',
+      );
+    }
+
+    final json = jsonDecode(response.body);
+    if (json['succeeded'] == true) {
+      final List<dynamic> data = json['data'];
+      return data.map((e) => CropType.fromJson(e)).toList();
+    } else {
+      throw HttpException('Failed to fetch crops data: ${json['message']}');
+    }
+  }
+
+  static Future<List<DiseaseType>> getDiseases() async {
+    final uri = Uri.parse('${farmFutureBaseUrl}StaticData/GetDiseases');
+    debugPrint('GET $uri');
+    final response = await http.get(uri);
+    debugPrint('Response(${response.statusCode}): ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw HttpException(
+        'Failed to fetch diseases data (${response.statusCode})',
+      );
+    }
+
+    final json = jsonDecode(response.body);
+    if (json['succeeded'] == true) {
+      final List<dynamic> data = json['data'];
+      return data.map((e) => DiseaseType.fromJson(e)).toList();
+    } else {
+      throw HttpException('Failed to fetch diseases data: ${json['message']}');
+    }
+  }
+
+  static Future<List<DiseaseType>> getNutrients() async {
+    final uri = Uri.parse('${farmFutureBaseUrl}StaticData/GetNutrients');
+    debugPrint('GET $uri');
+    final response = await http.get(uri);
+    debugPrint('Response(${response.statusCode}): ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw HttpException(
+        'Failed to fetch nutrients data (${response.statusCode})',
+      );
+    }
+
+    final json = jsonDecode(response.body);
+    if (json['succeeded'] == true) {
+      final List<dynamic> data = json['data'];
+      return data.map((e) => DiseaseType.fromJson(e)).toList();
+    } else {
+      throw HttpException('Failed to fetch nutrients data: ${json['message']}');
+    }
+  }
+
+  static Future<void> uploadDataCollection({
+    required String cropTypeId,
+    required String type,
+    String? subtype,
+    required String imagePath,
+  }) async {
+    final uri = Uri.parse('${farmFutureBaseUrl}MLDataCollection/upload');
+    debugPrint('POST $uri');
+
+    final request = http.MultipartRequest('POST', uri);
+
+    final payload = {
+      'cropTypeId': cropTypeId,
+      'type': type,
+      'subtype': subtype,
+    };
+
+    // The API expects the metadata in a field named 'request'
+    request.fields['request'] = jsonEncode(payload);
+
+    request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+
+    debugPrint('Request fields: ${request.fields}');
+
+    final streamResponse = await request.send();
+    final response = await http.Response.fromStream(streamResponse);
+    debugPrint('Response(${response.statusCode}): ${response.body}');
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw HttpException('Upload failed (${response.statusCode})');
+    }
   }
 }

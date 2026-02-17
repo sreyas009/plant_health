@@ -4,6 +4,7 @@ import 'providers/image_provider.dart';
 import 'screens/camera_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/instructions_screen.dart';
+import 'screens/data_collection_screen.dart';
 import 'widgets/brand_mark.dart';
 
 void main() {
@@ -35,6 +36,7 @@ class _MyAppState extends State<MyApp> {
     const CameraScreen(),
     const HistoryScreen(),
     const InstructionsScreen(),
+    const DataCollectionScreen(),
   ];
 
   @override
@@ -120,6 +122,10 @@ class _MyAppState extends State<MyApp> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.info_outline),
                   label: "Instructions",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.backup),
+                  label: "Data Collection",
                 ),
               ],
             ),
