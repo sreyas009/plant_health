@@ -111,35 +111,31 @@ class _MyAppState extends State<MyApp> {
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: child,
       ),
-      home: Stack(
-        children: [
-          if (!_isLoggedIn)
-            LoginScreen(onLoginSuccess: _onLoginSuccess)
-          else
-            Scaffold(
-              bottomNavigationBar: BottomNavigationBar(
-                currentIndex: _index,
-                onTap: (i) => setState(() => _index = i),
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.spa),
-                    label: "Brix & NDVI",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.backup),
-                    label: "Data Collection",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.info_outline),
-                    label: "Guide",
-                  ),
-                ],
-              ),
-              body: _screens[_index],
-            ),
-          if (_showSplash) const Positioned.fill(child: _SplashView()),
-        ],
-      ),
+      home: _showSplash
+          ? const _SplashView()
+          : (!_isLoggedIn
+                ? LoginScreen(onLoginSuccess: _onLoginSuccess)
+                : Scaffold(
+                    bottomNavigationBar: BottomNavigationBar(
+                      currentIndex: _index,
+                      onTap: (i) => setState(() => _index = i),
+                      items: const [
+                        BottomNavigationBarItem(
+                          icon: Icon(Icons.spa),
+                          label: "Brix & NDVI",
+                        ),
+                        BottomNavigationBarItem(
+                          icon: Icon(Icons.backup),
+                          label: "Data Collection",
+                        ),
+                        BottomNavigationBarItem(
+                          icon: Icon(Icons.info_outline),
+                          label: "Guide",
+                        ),
+                      ],
+                    ),
+                    body: _screens[_index],
+                  )),
     );
   }
 }

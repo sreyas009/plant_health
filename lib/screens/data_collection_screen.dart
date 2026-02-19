@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import '../models/crop_type.dart';
 import '../models/disease_type.dart';
 import '../services/api_service.dart';
@@ -69,7 +71,10 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
     try {
       final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
-        setState(() => _image = File(pickedFile.path));
+        final previousPath = _image?.path;
+        final persistentPath = await _copyImageToDraftStorage(pickedFile.path);
+        setState(() => _image = File(persistentPath));
+        await _cleanupDraftIfManaged(previousPath);
       }
     } catch (e) {
       ScaffoldMessenger.of(
@@ -127,6 +132,7 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
     }
 
     setState(() => _isSubmitting = true);
+    final currentImagePath = _image!.path;
     try {
       String? subtypeName;
       if (_selectedDiseaseId != null) {
@@ -143,8 +149,9 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
         cropTypeId: _selectedCropId!,
         type: _selectedCategory!,
         subtype: subtypeName,
-        imagePath: _image!.path,
+        imagePath: currentImagePath,
       );
+      await _cleanupDraftIfManaged(currentImagePath);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data uploaded successfully!')),
@@ -172,8 +179,9 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
           // Yet, 'subtypeName' scope is inside try.
           // Let's rely on re-resolving safely or just use what we have.
           // Ideally I should refactor to resolve name before try or inside a wider scope.
-          imagePath: _image!.path,
+          imagePath: currentImagePath,
         );
+        await _cleanupDraftIfManaged(currentImagePath);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -191,13 +199,49 @@ class _DataCollectionScreenState extends State<DataCollectionScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Upload failed and could not save offline: $e'),
+              content: Text(
+                'Upload failed and could not save offline: $dbError',
+              ),
             ),
           );
         }
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<String> _copyImageToDraftStorage(String originalPath) async {
+    final source = File(originalPath);
+    if (!await source.exists()) {
+      throw FileSystemException('Picked image not found', originalPath);
+    }
+
+    final appDir = await getApplicationDocumentsDirectory();
+    final draftDir = Directory(p.join(appDir.path, 'data_collection_drafts'));
+    if (!await draftDir.exists()) {
+      await draftDir.create(recursive: true);
+    }
+
+    final baseName = p.basenameWithoutExtension(originalPath);
+    final ext = p.extension(originalPath);
+    final safeBaseName = baseName.isEmpty ? 'image' : baseName;
+    final fileName =
+        '${DateTime.now().millisecondsSinceEpoch}_$safeBaseName$ext';
+    final destinationPath = p.join(draftDir.path, fileName);
+
+    await source.copy(destinationPath);
+    return destinationPath;
+  }
+
+  Future<void> _cleanupDraftIfManaged(String? imagePath) async {
+    if (imagePath == null || imagePath.isEmpty) return;
+    final normalized = imagePath.replaceAll('\\', '/');
+    if (!normalized.contains('/data_collection_drafts/')) return;
+
+    final file = File(imagePath);
+    if (await file.exists()) {
+      await file.delete();
     }
   }
 
