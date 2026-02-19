@@ -7,15 +7,10 @@ import 'screens/data_collection_wrapper_screen.dart';
 import 'screens/login_screen.dart';
 import 'widgets/brand_mark.dart';
 
-import 'services/sync_service.dart';
-
 void main() {
   runApp(
     ChangeNotifierProvider(create: (_) => ImageStore(), child: const MyApp()),
   );
-
-  // Start offline sync process
-  SyncService.processQueue();
 }
 
 class MyApp extends StatefulWidget {

@@ -319,10 +319,16 @@ class _OfflineQueueScreenState extends State<OfflineQueueScreen> {
                   final uploadedCount = _queue
                       .where((item) => (item['uploaded'] as int? ?? 0) == 1)
                       .length;
-                  final pendingCount = total - uploadedCount;
                   final missingFileCount = _queue.where((item) {
                     final imagePath = item['imagePath'] as String;
                     return !File(imagePath).existsSync();
+                  }).length;
+                  final pendingCount = _queue.where((item) {
+                    final isUploaded = (item['uploaded'] as int? ?? 0) == 1;
+                    final hasFile = File(
+                      item['imagePath'] as String,
+                    ).existsSync();
+                    return !isUploaded && hasFile;
                   }).length;
                   final visibleIds = filteredQueue
                       .map((item) => item['id'] as int)
